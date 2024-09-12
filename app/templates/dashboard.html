@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Состояние оборудования</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>Состояние оборудования</h1>
+    <div id="dashboard" class="dashboard">
+        <!-- JavaScript динамически заполнит этот блок данными -->
+    </div>
+
+    <script>
+        function updateDashboard(groupId) {
+            let url = groupId ? `/status/data?group_id=${groupId}` : `/status/data`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const dashboard = document.getElementById('dashboard');
+                    dashboard.innerHTML = '';  // Очистка текущего контента
+                    data.forEach(machine => {
+                        const div = document.createElement('div');
+                        div.className = 'machine ' + machine.status;
+                        div.innerText = machine.equipment_name;
+                        dashboard.appendChild(div);
+                    });
+                })
+                .catch(error => console.error('Ошибка при загрузке данных:', error));
+        }
+
+        // Получаем group_id из переменной окружения (или используем null для всего оборудования)
+        const groupId = "{{ group_id }}" || null;
+
+        // Первоначальный вызов функции для загрузки данных сразу после загрузки страницы
+        updateDashboard(groupId);
+
+        // Обновляем данные каждые 10 секунд
+        setInterval(() => updateDashboard(groupId), 10000); // Обновление каждые 10 секунд
+    </script>
+</body>
+</html>
