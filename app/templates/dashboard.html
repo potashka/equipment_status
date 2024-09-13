@@ -9,29 +9,58 @@
 <body>
     <h1>Состояние оборудования</h1>
     <div id="dashboard" class="dashboard">
-        <!-- JavaScript динамически заполнит этот блок данными -->
+        <div id="repair-section" class="status-section repair">
+            <h2>Ремонт</h2>
+            <div class="section-content"></div>
+        </div>
+        <div id="idle-section" class="status-section idle">
+            <h2>Ожидание</h2>
+            <div class="section-content"></div>
+        </div>
+        <div id="working-section" class="status-section working">
+            <h2>Работает</h2>
+            <div class="section-content"></div>
+        </div>
     </div>
 
     <script>
         function updateDashboard(groupId) {
-            let url = groupId ? `/status/data?group_id=${groupId}` : `/status/data`;
+            let url = groupId !== null ? `/status/data?group_id=${groupId}` : `/status/data`;
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    const dashboard = document.getElementById('dashboard');
-                    dashboard.innerHTML = '';  // Очистка текущего контента
-                    data.forEach(machine => {
-                        const div = document.createElement('div');
-                        div.className = 'machine ' + machine.status;
-                        div.innerText = machine.equipment_name;
-                        dashboard.appendChild(div);
-                    });
+                    if (Array.isArray(data)) {
+                        const repairSection = document.querySelector('#repair-section .section-content');
+                        const idleSection = document.querySelector('#idle-section .section-content');
+                        const workingSection = document.querySelector('#working-section .section-content');
+
+                        // Очистка текущего контента
+                        repairSection.innerHTML = '';
+                        idleSection.innerHTML = '';
+                        workingSection.innerHTML = '';
+
+                        data.forEach(machine => {
+                            const div = document.createElement('div');
+                            div.className = 'machine ' + machine.status;
+                            div.innerText = machine.equipment_name;
+
+                            if (machine.status === 'repair') {
+                                repairSection.appendChild(div);
+                            } else if (machine.status === 'idle') {
+                                idleSection.appendChild(div);
+                            } else if (machine.status === 'working') {
+                                workingSection.appendChild(div);
+                            }
+                        });
+                    } else {
+                        console.error('Неправильный формат данных:', data);
+                    }
                 })
                 .catch(error => console.error('Ошибка при загрузке данных:', error));
         }
 
         // Получаем group_id из переменной окружения (или используем null для всего оборудования)
-        const groupId = "{{ group_id }}" || null;
+        const groupId = "{{ group_id }}" !== "None" ? "{{ group_id }}" : null;
 
         // Первоначальный вызов функции для загрузки данных сразу после загрузки страницы
         updateDashboard(groupId);
