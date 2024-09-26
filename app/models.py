@@ -17,4 +17,5 @@ class EquipmentStatus(BaseModel):
     """
     equipment_id: int
     equipment_name: str
+    group_name: str
     status: str

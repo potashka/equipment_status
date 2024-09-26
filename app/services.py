@@ -17,7 +17,7 @@ def get_equipment_status(db: Session, group_id: int = None):
         group_id (int, optional): Идентификатор группы оборудования.
         Если None, возвращаются данные для всего оборудования.
     Возвращает:
-        list: Список кортежей, представляющих состояние оборудования.
+        list: Список словарей, представляющих состояние оборудования и название цеха.
     """
     query = """
     WITH active_channels AS (
@@ -44,6 +44,7 @@ def get_equipment_status(db: Session, group_id: int = None):
     SELECT
         e.equipment_id,
         e.equipment_name,
+        g.group_name,
         CASE
             WHEN e.equipment_status = 2 THEN 'repair'
             WHEN e.equipment_status = 1 AND EXISTS (
@@ -57,12 +58,25 @@ def get_equipment_status(db: Session, group_id: int = None):
         END AS status
     FROM
         equipment e
+    LEFT JOIN
+        groups g ON e.group_id = g.group_id
     """
     
+    params = {}
     if group_id is not None:
-        query += "WHERE e.group_id = :group_id"
-        result = db.execute(query, {"group_id": group_id}).fetchall()
-    else:
-        result = db.execute(query).fetchall()
+        query += " WHERE e.group_id = :group_id"
+        params["group_id"] = group_id
 
-    return result
+    result = db.execute(query, params).fetchall()
+
+    # Преобразуем результат в список словарей
+    equipment_list = []
+    for row in result:
+        equipment_list.append({
+            "equipment_id": row["equipment_id"],
+            "equipment_name": row["equipment_name"],
+            "group_name": row["group_name"],
+            "status": row["status"]
+        })
+
+    return equipment_list

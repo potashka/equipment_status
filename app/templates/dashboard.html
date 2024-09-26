@@ -8,6 +8,7 @@
 </head>
 <body>
     <h1>Состояние оборудования</h1>
+    <div id="group-name" class="group-name"></div>
     <div id="dashboard" class="dashboard">
         <div id="equipment-list" class="equipment-list">
             <!-- Оборудование будет загружено сюда -->
@@ -20,13 +21,17 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if (Array.isArray(data)) {
+                    if (data && data.equipment) {
                         const equipmentList = document.querySelector('#equipment-list');
+                        const groupNameElement = document.querySelector('#group-name');
+
+                        // Обновляем название цеха
+                        groupNameElement.innerText = data.group_name;
 
                         // Очистка текущего контента
                         equipmentList.innerHTML = '';
 
-                        data.forEach(machine => {
+                        data.equipment.forEach(machine => {
                             const div = document.createElement('div');
                             div.className = 'machine ' + machine.status;
 

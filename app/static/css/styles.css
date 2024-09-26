@@ -11,6 +11,15 @@ h1 {
     text-align: center;
 }
 
+.group-name {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
+}
+
 .dashboard {
     display: flex;
     justify-content: center;
