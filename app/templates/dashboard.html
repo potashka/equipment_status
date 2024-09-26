@@ -9,17 +9,8 @@
 <body>
     <h1>Состояние оборудования</h1>
     <div id="dashboard" class="dashboard">
-        <div id="repair-section" class="status-section repair">
-            <h2>Ремонт</h2>
-            <div class="section-content"></div>
-        </div>
-        <div id="idle-section" class="status-section idle">
-            <h2>Ожидание</h2>
-            <div class="section-content"></div>
-        </div>
-        <div id="working-section" class="status-section working">
-            <h2>Работает</h2>
-            <div class="section-content"></div>
+        <div id="equipment-list" class="equipment-list">
+            <!-- Оборудование будет загружено сюда -->
         </div>
     </div>
 
@@ -30,27 +21,21 @@
                 .then(response => response.json())
                 .then(data => {
                     if (Array.isArray(data)) {
-                        const repairSection = document.querySelector('#repair-section .section-content');
-                        const idleSection = document.querySelector('#idle-section .section-content');
-                        const workingSection = document.querySelector('#working-section .section-content');
+                        const equipmentList = document.querySelector('#equipment-list');
 
                         // Очистка текущего контента
-                        repairSection.innerHTML = '';
-                        idleSection.innerHTML = '';
-                        workingSection.innerHTML = '';
+                        equipmentList.innerHTML = '';
 
                         data.forEach(machine => {
                             const div = document.createElement('div');
                             div.className = 'machine ' + machine.status;
-                            div.innerText = machine.equipment_name;
 
-                            if (machine.status === 'repair') {
-                                repairSection.appendChild(div);
-                            } else if (machine.status === 'idle') {
-                                idleSection.appendChild(div);
-                            } else if (machine.status === 'working') {
-                                workingSection.appendChild(div);
-                            }
+                            const span = document.createElement('span');
+                            span.className = 'machine-name';
+                            span.innerText = machine.equipment_name;
+
+                            div.appendChild(span);
+                            equipmentList.appendChild(div);
                         });
                     } else {
                         console.error('Неправильный формат данных:', data);
